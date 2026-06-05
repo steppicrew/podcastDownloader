@@ -1,0 +1,11 @@
+[project]
+name = "podcast-downloader"
+version = "0.1.0"
+description = "Download all episodes of an ARD Audiothek podcast as MP3 files"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.mypy]
+files = ["download.py"]
+python_version = "3.10"
+strict = true

@@ -43,8 +43,8 @@ Adding a new podcast: copy a wrapper `.sh`, swap in the show's ardsounds URL.
 
 ## Type checking
 
-`download.py` is fully annotated and passes `mypy --strict` cleanly. Keep it that
-way: run `mypy --strict download.py` after changes. The dynamic JSON from the API is
+`download.py` is fully annotated and passes mypy `strict` cleanly. Config lives in
+`pyproject.toml` (`[tool.mypy]`), so just run `mypy` after changes. The dynamic JSON from the API is
 typed as `dict[str, Any]`; when returning values pulled out of it, assign to a typed
 local first to avoid `no-any-return` errors. (pyright should also be clean — same
 annotations — but isn't installed in this environment.)
