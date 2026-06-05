@@ -1,0 +1,7 @@
+# Downloaded podcast files
+*.mp3
+*.part
+
+# Python
+__pycache__/
+*.pyc
