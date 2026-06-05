@@ -1,5 +1,7 @@
 # podcastDownloader
 
+[![mypy](https://github.com/steppicrew/podcastDownloader/actions/workflows/mypy.yml/badge.svg)](https://github.com/steppicrew/podcastDownloader/actions/workflows/mypy.yml)
+
 Download all episodes of an [ARD Audiothek](https://www.ardaudiothek.de/) podcast
 (ardsounds.de / ardaudiothek.de) as MP3 files.
 
