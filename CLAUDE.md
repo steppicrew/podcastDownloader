@@ -40,3 +40,11 @@ Adding a new podcast: copy a wrapper `.sh`, swap in the show's ardsounds URL.
   temp, so it only fetches new or missing episodes. Safe to re-run for new releases.
 - Downloaded `*.mp3` files are gitignored.
 - Stdlib only (no pip deps); needs Python 3.
+
+## Type checking
+
+`download.py` is fully annotated and passes `mypy --strict` cleanly. Keep it that
+way: run `mypy --strict download.py` after changes. The dynamic JSON from the API is
+typed as `dict[str, Any]`; when returning values pulled out of it, assign to a typed
+local first to avoid `no-any-return` errors. (pyright should also be clean — same
+annotations — but isn't installed in this environment.)

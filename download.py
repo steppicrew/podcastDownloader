@@ -18,6 +18,8 @@ import re
 import sys
 import urllib.parse
 import urllib.request
+from collections.abc import Iterator
+from typing import Any
 
 GRAPHQL_URL = "https://api.ardaudiothek.de/graphql"
 
@@ -38,7 +40,7 @@ HEADERS = {
 }
 
 
-def extract_show_urn(arg):
+def extract_show_urn(arg: str) -> str:
     """Accept a full ardsounds URL or a bare urn:ard:show:... string."""
     m = re.search(r"urn:ard:show:[0-9a-f]+", arg)
     if not m:
@@ -46,15 +48,17 @@ def extract_show_urn(arg):
     return m.group(0)
 
 
-def fetch_page(show_urn, offset):
+def fetch_page(show_urn: str, offset: int) -> dict[str, Any]:
     variables = {"id": show_urn, "offset": offset, "count": PAGE_SIZE}
     qs = urllib.parse.urlencode({"query": QUERY, "variables": json.dumps(variables)})
     req = urllib.request.Request(f"{GRAPHQL_URL}?{qs}", headers=HEADERS)
     with urllib.request.urlopen(req) as resp:
-        return json.load(resp)["data"]["result"]["items"]
+        data: dict[str, Any] = json.load(resp)
+    items: dict[str, Any] = data["data"]["result"]["items"]
+    return items
 
 
-def iter_episodes(show_urn):
+def iter_episodes(show_urn: str) -> Iterator[dict[str, Any]]:
     offset = 0
     while True:
         items = fetch_page(show_urn, offset)
@@ -66,13 +70,13 @@ def iter_episodes(show_urn):
         offset += len(nodes)
 
 
-def parse_folge_number(title):
+def parse_folge_number(title: str) -> int | None:
     """Return the 'Folge NN' number from a title, or None."""
     m = re.search(r"Folge\s+(\d+)", title)
     return int(m.group(1)) if m else None
 
 
-def clean_title(title):
+def clean_title(title: str) -> str:
     """Strip surrounding quotes and the '- Folge NN' suffix; sanitize for filename."""
     t = re.sub(r"\s*[–-]\s*Folge\s+\d+\s*$", "", title)
     t = t.strip().strip("„“\"”").strip()
@@ -81,19 +85,19 @@ def clean_title(title):
     return t
 
 
-def pick_audio_url(audios):
+def pick_audio_url(audios: list[dict[str, Any]]) -> str | None:
     for a in audios:
         if a.get("allowDownload") and a.get("downloadUrl"):
-            return a["downloadUrl"]
+            url: str = a["downloadUrl"]
+            return url
     for a in audios:
-        if a.get("downloadUrl"):
-            return a["downloadUrl"]
-        if a.get("url"):
-            return a["url"]
+        fallback: str | None = a.get("downloadUrl") or a.get("url")
+        if fallback:
+            return fallback
     return None
 
 
-def download(url, path):
+def download(url: str, path: str) -> None:
     tmp = path + ".part"
     req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req) as resp, open(tmp, "wb") as f:
@@ -105,7 +109,7 @@ def download(url, path):
     os.replace(tmp, path)
 
 
-def main():
+def main() -> None:
     if len(sys.argv) < 2:
         sys.exit(__doc__)
     show_urn = extract_show_urn(sys.argv[1])
